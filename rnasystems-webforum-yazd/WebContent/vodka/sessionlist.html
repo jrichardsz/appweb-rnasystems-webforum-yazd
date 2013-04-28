@@ -1,0 +1,117 @@
+<script>
+    var users;
+    var current=0;
+    var stopscroll=false;
+    function getlist() {
+        var url = "sessionlist_xml.jsp";
+        if (window.XMLHttpRequest) {
+            req = new XMLHttpRequest();
+        } else if (window.ActiveXObject) {
+            req = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        req.open("GET", url, true);
+        req.onreadystatechange = callback;
+        req.send(null);
+    }
+    function callback() {
+        if (req.readyState == 4) {
+            if (req.status == 200) {
+                parseXML();
+            }
+        }
+    }
+    function parseXML() {
+        var message = req.responseXML.getElementsByTagName("CurrentSessionList")[0];
+        document.getElementById("yazdcount").innerHTML='('+message.attributes[0].value+')';
+        document.getElementById("yesterdaycount").innerHTML='Yesterday '+message.attributes[1].value+' users visited';
+        users=message.childNodes;
+        //We want to update the list again
+        setTimeout('getlist()',240000);
+        current=0;
+        stopscroll=true;
+        scroll();
+        setTimeout('scroll()',3000);
+        setTimeout('stopscroll=false',2000);
+        setTimeout('current=0',2000);
+    }
+    function scroll(){
+        maxlength=users.length;
+        if(maxlength > 4){
+            maxlength=4;
+            if(!stopscroll){
+                setTimeout('scroll()',1000);
+            }
+        }
+        for(var i=0; i < 4; i++){
+            yazdid="yazduser"+i;
+            index = current+i;
+            if(index >= users.length){
+                if(users.length < 4) break;
+                else index=index-users.length;
+            }
+            document.getElementById(yazdid).innerHTML=users[index].attributes[0].value;
+        }
+        current++;
+        if(current >=users.length){
+            current=0;
+        }
+
+    }
+
+    getlist();
+
+</script>
+<table bgcolor="#999999" cellpadding="1" cellspacing="0" border="0" width="220">
+    <td>
+
+        <table bgcolor="#eeeeee" cellpadding="3" cellspacing="0" border="0" width="100%">
+            <tr bgcolor="#ccccdd">
+                <td align="center" colspan="2">
+                    <b>Users Online&nbsp;<span id="yazdcount"></span></b>
+                </td>
+            </tr>
+
+            <tr>
+                <td width="1%" valign="top" align="center"></td>
+                <td width="99%">
+                    <font size="-1">
+                        <div id="yazduser0" align="center"></div>
+                    </font>
+                </td>
+            </tr>
+            <tr>
+                <td width="1%" valign="top" align="center"></td>
+                <td width="99%">
+                    <font size="-1">
+                        <div id="yazduser1" align="center"></div>
+                    </font>
+                </td>
+            </tr>
+            <tr>
+                <td width="1%" valign="top" align="center"></td>
+                <td width="99%">
+                    <font size="-1">
+                        <div id="yazduser2" align="center"></div>
+                    </font>
+                </td>
+            </tr>
+            <tr>
+                <td width="1%" valign="top" align="center"></td>
+                <td width="99%">
+                    <font size="-1">
+                        <div id="yazduser3" align="center"></div>
+                    </font>
+                </td>
+            </tr>
+            <tr bgcolor="#ccccdd">
+                <td align="center" colspan="2">
+                    <b><span id="yesterdaycount"></span></b>
+                </td>
+            </tr>
+        </table>
+    </td>
+</table>
+
+
+
+
